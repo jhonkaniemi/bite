@@ -3,86 +3,61 @@
 
 ## Description
 
-* probabilistic: spread adds probabilities, i.e: p(cell) = 1 - (1-p(cell))*(1-kernel)
+### Sequence of steps
 
-
+The following steps are executed:
+* calculation of the carrying capacity (based on the current vegetation on the cell)
+* calculation of the new agent biomass (currently only via the `onCalculate` handler)
+* estimate mortality probability
 
 ## Setup
 
-* ### `kernel` (expression)
-A mathematical expression that defines the dispersal kernel. The function is a
-(probability) density at distance `x`. Internally, the kernel function is discretized
-to the cell size of the agent. The value for a cell is calculated as:
+* ### `hostTrees` (expression)
+A filter expression to select those trees on the pixel which are considered as hosts.
 
-`p(cell) = f(distance_to_centerpoint_m)`
+* ### `carryingCapacityTree` (dynamic expression)
+A dynamic expression to calculate the carrying capacity. The expression is evaluated for each host tree (>4m), 
+and consequently the carrying capacity is the sum over all trees. 
 
-with `distance_to_centerpoint_m` the distance between the center point of `cell` and
-the center point of the spreading cell.
+* ### `carryingCapacityCell` (dynamic expression)
+A dynamic expression to calculate the carrying capacity. The expression is evaluated once for the cell,
+and the carrying capacity is set to the result of the expression.
 
-In addition, the kernel is cut at `maxDistance`, and scaled to 1, i.e., the sum over all
-cells of the kernel (including the center cell) after scaling is 1. 
-
-* ### `maxDistance` (numeric, meters)
-The dispersal kernel includes only cells for which the distance between the center point of the 
-cell and the center point of the spreading cell is <= `maxDistance`.
-
-* ### `debugKernel` (filename) (optional)
-If provided, a ASCII raster file of the kernel is saved to `debugKernel`.
-
-kernel value of a grid cell
+* ### `mortality` (dynamic expression)
+A dynamic expression, whose result is interpreted as the probability of mortality for the agent on the cell.
+The expression is evaluated within the cell context.
 
 ## Properties
 
-* ### `grid` [Grid](http://iland.boku.ac.at/apidoc/classes/Grid.html)
-The internal dispersal grid (see also `dispersalGrid` variable). 
-
-Note that the `grid` can be manipulated programmatically; for example, to add active
-cells before the spreading algorithm:
-```
-... (definition of the BiteDispersal item) ...
-onBeforeSpread: function(bit) { randomInitiate(10, bit.grid); Bite.log("added 10 px"); }
-
-// set randomly 'n' values in grid 'gr' to '1'.
-function randomInitiate(n, gr) {
-	for (var i=0;i<n;++i) {
-		var x = Math.random()*gr.width;
-    var y = Math.random()*gr.height;
-    gr.setValue(x,y,1);
-	}
-}
-```
-Note that functions for loading and saving grids are available; for instance to save the grid
-after each execution the `onAfterSpread` handler can be used:
-```
-... (BiteDispersal definition) ...
-onAfterSpread: function(item) {  item.grid.save(Globals.path("temp/dgrid" + step + ".asc")); }
-```
-
+*no properties*
 
 ## Variables
 
-* ### `dispersalGrid` 
-`dispersalGrid` is (after execution) the total aggregated input value for each cell (a value between 0 and 1).
-Note that the grid can also be accessed via the `grid` property of BiteDispersal.
- 
+* ### `carryingCapacity` 
+`carryingCapacity` is a measure of the relevant host biomass that can be consumed/occupied by an agent. 
+The value is set to 0 when a cell dies.
+
+* ### `agentBiomass` 
+`agentBiomass` is the total biomass of the agent on a cell. The `agentBiomass` is set to 0 when
+a cell dies.
+
 
 ## Events
 
 * ### `onSetup(item)` 
 The `onSetup` event is triggered after the setup of the item. 
 
-`item` is the BiteDispersal object.
+`item` is the BiteBiomass object.
 
-* ### `onBeforeSpread(item)` 
-called immediately before the spreading algorithm is executed. Useful for "injecting"
-newly infested cells.
+* ### `onCalculate(cell)` 
+The handler is responsible for calculating the new state of the agent biomass. The handler is called
+after the calcuation of the carrying capacity, and the the varible `agentBiomas` is set to the return value
+of the function. 
 
-`item` is the BiteDispersal object.
 
-* ### `onAfterSpread(item)` 
-called immediately after the spreading algorithm is executed. Useful for inspecting or modifying the post-spread
-state.
+* ### `onMortality(cell)` 
+The handler is invoked *if* the cell dies (i.e. only if the random choice based on the probability (see `mortality`)
+decides the death of the agent on the cell).
 
-`item` is the BiteDispersal object.
 
 
