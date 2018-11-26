@@ -21,12 +21,12 @@ onCalculate | Javascript event, that can prevent colonization
 
 * ### `dispersalFilter` (dynamic expression)
 `dispersalFilter` has access to cell variables; no colonization if the result of the 
-expression is either 0, or "false".
+expression is either 0, or "false". 
 
-* ### `cellFilter` (dynamic expression)
+* ### `cellFilter` (dynamic expression) (optional)
 "Constraint" object, i.e. either 1 or more dynamic expressions. Access to cell variables.
 
-* ### `treeFilter` (dynamic expression)
+* ### `treeFilter` (dynamic expression) (optional)
 "Constraint" object, i.e. either 1 or more dynamic expressions. Access to tree variables.
 The filter is passed if at least one tree on the cell evaluates to 'true'.
 
