@@ -46,6 +46,32 @@ kind of versioning information.
 The `cellSize` defines the grain at which the agent operates. Possible values are 10, 20, 50, or 100m. 
 Note that multiple agents can coexist that use a different resolution.
 
+* ### `climateVariables` (array of string)
+`climateVariables` is a Javascript array that contains a list of climate variable names which can be used by the agent.
+The elements of the array need to be one of the provided climate variabes (see below). Variables that are 'registered'
+in this way can be subsequently used in expressions and accessed via Javascript.
+
+Example:
+
+```
+	// define in the agent definition
+	var agent = new BiteAgent({ ...,
+	              climateVariables: ['MAP', 'MAT'], ... });
+		      
+       // later use, e.g. in an expression:
+       dispersalFilter: 'MAT>7 and MAP<800' // restrict colonization to certain climatic conditions
+       // or in javascript:
+       onCalculate(cell) { if (cell.value('MAT')>7) { ... } }
+       
+```
+
+Variables | Description
+----------| -----------
+MAT | mean annual temperature (°C)
+MAP | annual precipitation sum (mm)
+TMonthX | with `X` in 1..12, mean temperature of the month 1..12 (e.g. `TMonth6` for mean temp of June)
+
+
 ## Items
 
 A `Bite*`-Item can be one of the following:
