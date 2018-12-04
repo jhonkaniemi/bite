@@ -6,8 +6,9 @@
 * [expressions, events, variables](variables.md)
 
 ## Reference
-
+* [BiteEngine](BiteEngine.md): the Bite module
 * [BiteAgent](BiteAgent.md): a biotic disturbance agent
+* [BiteCell](BiteCell.md): a single cell of an agent
 
 
 ### Items
