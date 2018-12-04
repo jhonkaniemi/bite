@@ -62,6 +62,8 @@ calculates the growth rate used in `growthFunction`; the growth rate can be depe
 * ### `growthIterations` (integer)
 The growth function 
 
+* ### `verbose` (bool)
+if `true` detailed log output of the growth cylce is written to the console.
 ## Properties
 
 *no properties*
@@ -79,6 +81,7 @@ a cell dies.
 * ### `agentImpact`
 The `agentImpact` is a measure for the consumed host biomass during the year. Note that the type
 of impact (e.g., foliage, roots) can differ.
+
 
 ## Events
 
