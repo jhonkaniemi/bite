@@ -107,3 +107,58 @@ for setting up user defined variables.
 The `onYearEnd` event is triggered after the execution of the agent.  
 
 `agent` is the `BiteAgent` object.
+
+## Methods
+
+* ### `cell(int x, int y)`: BiteCell
+returns a reference to the cell at index `x/y`.  An error is thrown if the coordinates are not valid.
+
+See also: `isCellValid()`
+
+* ### `isCellValid(int x, int y)`: bool
+returns `true` if the a valid cell is at index `x/y`, `false` otherwise.
+
+* ### `run()`
+executes the agent for a cylce (i.e. a  year)
+
+* ### `run(BiteCell cell)`
+executes the agent for a given cell. Note: only cell-level items are executed.
+
+* ### `item(string name)`: Item
+retrieves the BiteItem with the name `name` (as a reference). Returns `null` if the there is no item with the given name.
+
+* ### `info()`: string
+returns a info dump about the agent as a string. The dump includes characteristics such as the cell size, item-related information and a list of all available variables.
+
+* ### `evaluate(BiteCell cell, string expression)`: numeric
+returns the result of the evaluation of `expression` in the context of `cell`. Cell variables are available.
+
+* ### `addVariable(Grid grid, string var_name)`
+adds the numeric grid `grid` as variable to the agent that can be accessed with the name `var_name`. This allows to add spatial data
+to the agent (e.g. for management purposes).
+
+```
+	onSetup: function(item) { 
+		Bite.log( 'add the variable mgmtgrid to the agent' ); 
+		var gr = Factory.newGrid();
+		gr.load('temp/dgrid9.asc');
+		item.agent.addVariable(gr, 'mgmtgrid');
+		}, // part of the Item
+```
+* ### `updateDrawGrid(string expression)`
+fills the internal draw grid of the agent (which is also for used for visualization) with the result of `expression`.
+
+```
+   my_agent.updateDrawGrid('mgmtgrid'); // fills the internal grid with the 'mgmtgrid' variable
+   my_agent.drawGrid().save('temp/test.asc'); // access the draw grid
+```
+
+See also: `saveGrid()`
+      
+* ### `drawGrid()`: Grid
+returns a Javascript reference to the internal grid of the agent (see http://iland.boku.ac.at/apidoc/classes/Grid.html).
+
+* ### `saveGrid(string expression, string file_name)`
+convenience function to save the expression `expression` to a file (relative paths are relative to the project folder).
+
+```
