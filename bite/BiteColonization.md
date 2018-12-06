@@ -33,7 +33,10 @@ The filter is passed if at least one tree on the cell evaluates to 'true'.
 For example: `treeFilter: 'species=piab and dbh>20'` is passed if one tree with the specified
 properties exist on the cell (i.e., a spruce with a dbh >20cm)
 
-
+* ### `initialAgentBiomass`(dynamic expression) (optional)
+If a cell is colonied, the initial value for the variable `agentBiomass` is calculated with this dynamic expression. If provided,
+the variable is required (e.g. by a [BiteBiomass](BiteBiomass.md) item). The initial biomass is the sum over all trees (when 
+an expression is used), or the result of the Javascript function (with the context of a cell).
 ## Properties
 
 no properties.
