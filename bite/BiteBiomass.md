@@ -28,13 +28,9 @@ The following steps are executed:
 * ### `hostTrees` (expression)
 A filter expression to select those trees on the pixel which are considered as hosts.
 
-* ### `hostBiomassTree` (dynamic expression)
-A dynamic expression to calculate the host biomass. The expression is evaluated for each host tree (>4m) (see `hostTrees`), 
-and consequently the total host biomass is the sum over all trees. 
-
-* ### `hostBiomassCell` (dynamic expression)
-A dynamic expression to calculate the host biomass. The expression is evaluated once for the cell,
-and the host biomass is set to the result of the expression.
+* ### `hostBiomass` (dynamic expression)
+A dynamic expression to calculate the host biomass. If `hostBiomass` is an expression, it  is evaluated for each host tree (>4m) (see `hostTrees`), and consequently the total host biomass is the sum over all trees. If `hostBiomass` is a Javascript
+function the host biomass is the result of the function which is evaluated with the parameter `cell`.
 
 * ### `mortality` (dynamic expression)
 A dynamic expression, whose result is interpreted as the probability of mortality for the agent on the cell.
