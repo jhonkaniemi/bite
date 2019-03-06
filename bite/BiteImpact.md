@@ -11,7 +11,7 @@ The following steps are executed:
 * run the impact (either kill all trees, or run the `onImpact` handler)
 
 ### Specifying the impact
-The impact item supports different impact targets (i.e. which plants/part of plants to affect), and different impact types (i.e. which part of the population to affect). The impact is a combination of impact target and impact type, and multiple impacts can be combined.
+BiteImpact supports different impact targets (i.e. which plants/part of plants to affect), and ways to further specify the impact (i.e. which fraction of the population to affect). The total impact is a combination of multiple impacts.
 
 #### Impact targets (`target`):
 
@@ -37,20 +37,24 @@ impact: [ { impact 1}, {impact 2}, ... ],
 
 An single impact is specified as a Javascript object with the following elements:
 * `target`: The impact target as a string (e.g. `tree`, see list above)
-* `type`: The impact type as a string (e.g. `fractionPerTree`, see list above)
-* `value`: The fraction or fractionPerTree for the respective impact types. Not necessary for impact type `all`.
-* `order`: for `fraction` impacts, order specifies the order in which the trees are processed. `order` is an Expression (provided as a string). For example, if `order` is '-dbh', then the biggest trees would be first in the list, and thus affected first. If omitted, the trees are selected randomly.
+* `fractionOfTrees`: a fraction specifiying which plants to affect (0..1). If omitted, all trees are affected.
+* `fractionPerTree`: the fraction of the respective biomass compartment to remove (0..1). Only applicable for biomass targets.
+* `maxTrees`: the maximum (absolute) number of plants to affect (optional)
+* `maxBiomass`: if provided, maxBiomass caps the removal at the given amount of biomass.
+* `order`: `order` specifies the order in which trees are processed. `order` is an Expression (provided as a string). For example, if `order` is '-dbh', then the biggest trees would be first in the list, and thus affected first. If omitted, the trees are selected randomly.
 
-Note that the impact items are processed in the given sequence.
+Notes:
+* if both specified, the smaller value of `fractionOfTrees` and `maxTrees` is effective; e.g. if the total number of trees is 100, fractionOfTrees 0.5, and maxTrees 80, then 50 trees are affected. If also a `maxBiomass` is provided, it acts as an additional limit (i.e. if in the above example maxBiomass is achieved after 20 trees, then execution stops there).
+* impact items are processed in the given sequence.
+* the properties `fractionOfTrees`, `fractionPerTree`, `maxTrees`, and `maxBiomass` are dynamic expressions (i.e. can be calculated dynamically).
 
 Example:
 ```
-impact: [ {target: 'tree', type: 'fraction', value: 0.1}, // 10 % of all trees die (selected randomly)
-          {target: 'browsing', type: 'all'}, // all saplings are browsed within the cell
-          {target: 'foliage', type: 'fraction', value: 0.5, order: 'dbh' } ], // remove all foliage from 50% of trees, starting with the smallest
+impact: [ {target: 'tree', fractionOfTrees: 0.1, maxTrees: 100}, // 10 % of all trees die, but not more than 100 (selected randomly)
+          {target: 'browsing'}, // all saplings are browsed within the cell
+          {target: 'foliage', fractionPerTree: 0.5, maxBiomass: 100, order: 'dbh' } ], // remove 50% of foliage (starting with the smallest) and stop when the cumulative removal reaches 100kg 
 ```
 
-Juha: should we also allow to specify how __much__ biomass should be removed in total? (e.g. 100kg foliage)?
 
 
 ## Setup
