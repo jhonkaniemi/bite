@@ -21,11 +21,6 @@ BiteImpact supports different impact targets (i.e. which plants/part of plants t
 * `sapling`: Sapling cohorts (trees <4m height) are affected (i.e. mortality)
 * `browsing`: The height growth of saplings (<4m) is set to 0 for the year of impact
 
-#### Impact types
-* `all`: All trees/biomass/cohorts of host plants (see `hostFilter`)
-* `fractionPerTree`: for biomass compartments (foliage, roots) a given fraction is removed (from all trees)
-* `fraction`: Only a fraction of the trees/saplings are affected; for biomass compartments all biomass is removed from a given fraction of the trees (see also `order`)
-
 #### Declaring impacts
 The total impact is specified as an array of impacts:
 
@@ -43,7 +38,7 @@ An single impact is specified as a Javascript object with the following elements
 * `maxBiomass`: if provided, maxBiomass caps the removal at the given amount of biomass.
 * `order`: `order` specifies the order in which trees are processed. `order` is an Expression (provided as a string). For example, if `order` is '-dbh', then the biggest trees would be first in the list, and thus affected first. If omitted, the trees are selected randomly.
 
-Notes:
+__Notes__:
 * if both specified, the smaller value of `fractionOfTrees` and `maxTrees` is effective; e.g. if the total number of trees is 100, fractionOfTrees 0.5, and maxTrees 80, then 50 trees are affected. If also a `maxBiomass` is provided, it acts as an additional limit (i.e. if in the above example maxBiomass is achieved after 20 trees, then execution stops there).
 * impact items are processed in the given sequence.
 * the properties `fractionOfTrees`, `fractionPerTree`, `maxTrees`, and `maxBiomass` are dynamic expressions (i.e. can be calculated dynamically).
