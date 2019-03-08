@@ -13,7 +13,7 @@ is `true` when a cell is activelty dispersing the agent. Can be set via Javascri
 * ### `yearsLiving` (int, read-only)
 The number of years a cell is continuously occupied by the agent (the value is reset if a cell dies).
 
-* ### `agent` ([agent](BiteAgent.md)
+* ### `agent` ([agent](BiteAgent.md))
 A reference to the agent object.
 
 * ### `trees` (TreeList)
@@ -24,6 +24,11 @@ list is populated automatically during execution of the agent (but see `reloadTr
 // use in dynamic expressions: an aggregate over all trees in the list
 agentBiomassCell: function(cell) { cell.trees.sum('stemmass*0.23'); }, ...
 ```
+
+* ### `saplings` (SaplingList)
+A list of saplings (tree cohorts <4m) (see http://iland.boku.ac.at/apidoc/classes/SaplingList.html) on the cell. The `saplings` can be queried, filtered or modified. The sapling list is populated automatically during execution of the agent (but see `reloadSaplings()`).
+
+__Note__: this is under construction - you may have to reload saplings explicitly. 
 
 ## Methods
 * ### `hasValue(string var_name)`: bool
@@ -38,6 +43,10 @@ updates the value of `var_name` with `value`. Note that not all variables can be
 * ### `reloadTrees()`
 (re-)loads all trees on the cell to the internal list (see `trees`). Reloading ignores all potential filters that have been 
 applied previously to the list of trees.
+
+* ### `reloadSaplings()`
+(re-)loads all saplings on the cell to the internal list (see `saplings`). Reloading ignores all potential filters that have been 
+applied previously to the list.
 
 * ### `die()`
 lets the agent on a cell die (i.e. set biomass to 0, `active` and `spreading` to `false`).
