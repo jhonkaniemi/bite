@@ -32,6 +32,20 @@ A filter expression to select those trees on the pixel which are considered as h
 A dynamic expression to calculate the host biomass. If `hostBiomass` is an expression, it  is evaluated for each host tree (>4m) (see `hostTrees`), and consequently the total host biomass is the sum over all trees. If `hostBiomass` is a Javascript
 function the host biomass is the result of the function which is evaluated with the parameter `cell`.
 
+Javascript can be used to access sapling biomass (and to combine trees and saplings):
+
+```
+   hostBiomass: function(cell) {
+       cell.reloadSaplings(); // trees are loaded automatically
+       cell.saplings.filter('species=fasy and height>0.5'); // only beech and >0.5
+       var bm_saplings = cell.saplings.sum('nrep*foliagemass'); // foliage * number of represented stems per cohort
+       // or: bm_saplings = cell.saplings.sum('nrep*foliagemass', 'species=fasy and height>0.5');
+       var bm_trees = cell.trees.sum('foliagemass', 'species=fasy'); // foliage of all beech trees
+       Bite.log(cell.info() + ": sap: " + bm_saplings + " tree: " + bm_trees); 
+       return bm_saplings + bm_trees;
+   }
+```
+
 * ### `mortality` (dynamic expression)
 A dynamic expression, whose result is interpreted as the probability of mortality for the agent on the cell.
 The expression is evaluated within the cell context.
@@ -67,16 +81,16 @@ if `true` detailed log output of the growth cylce is written to the console.
 ## Variables
 
 * ### `hostBiomass` 
-`hostBiomass` is a measure of the relevant host biomass that can be consumed/occupied by an agent. 
+`hostBiomass` is a measure of the relevant host biomass that can be consumed/occupied by an agent. The value is the result of the host biomass calculation (see `hostBiomass` dynamic expression).
 The value is set to 0 when a cell dies.
 
 * ### `agentBiomass` 
 `agentBiomass` is the total biomass of the agent on a cell. The `agentBiomass` is set to 0 when
-a cell dies.
+a cell dies. The value of the variable is the result of the Javascript handler (`onCalculate`) or the result of the logistic growth.
 
 * ### `agentImpact`
 The `agentImpact` is a measure for the consumed host biomass during the year. Note that the type
-of impact (e.g., foliage, roots) can differ.
+of impact (e.g., foliage, roots) can differ. The value is the set as the difference in host biomass before and after the logistic growth.
 
 
 ## Events
