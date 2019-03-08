@@ -8,7 +8,7 @@
 The following steps are executed:
 * ask the `impactFilter` if an impact should happen
 * filter host trees (if provided)
-* run the impact (either kill all trees, or run the `onImpact` handler)
+* run the impact (run either the `onImpact` handler, or the impact specified at the `impact` property)
 
 ### Specifying the impact
 BiteImpact supports different impact targets (i.e. which plants/part of plants to affect), and ways to further specify the impact (i.e. which fraction of the population to affect). The total impact is a combination of multiple impacts.
@@ -60,13 +60,22 @@ A filter expression to select those trees on the pixel which are considered as h
 
 * ### `impactFilter` (dynamic expression)
 A dynamic expression to determine whether an impact should occur on the cell (context is cell). The expression
-should return a boolean value.
+should return a boolean value. 
+
+Example:
+```
+impactFilter: 'agentImpact>0'  // impact only on cells where the biomass growth module indicates biomass loss
+```
+
+* ### `impact` (array of Javascript objects)
+See the section about "Declaring impacts above". 
 
 * ### `verbose` (boolean)
 If `true`, the log contains more details. Mainly for testing purposes. Default: false.
 
 * ### `simulate` (boolean)
 If `true` no trees are harmed.
+
 
 ## Properties
 
