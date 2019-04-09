@@ -37,6 +37,7 @@ An single impact is specified as a Javascript object with the following elements
 * `maxTrees`: the maximum (absolute) number of plants to affect (optional)
 * `maxBiomass`: if provided, maxBiomass caps the removal at the given amount of biomass.
 * `order`: `order` specifies the order in which trees are processed. `order` is an Expression (provided as a string). For example, if `order` is '-dbh', then the biggest trees would be first in the list, and thus affected first. If omitted, the trees are selected randomly.
+* `treeFilter`: an additional filter for trees / saplings (an expression). Applying a `treeFilter` within an item does not change the current tree / sapling list.
 
 __Notes__:
 * if both specified, the smaller value of `fractionOfTrees` and `maxTrees` is effective; e.g. if the total number of trees is 100, fractionOfTrees 0.5, and maxTrees 80, then 50 trees are affected. If also a `maxBiomass` is provided, it acts as an additional limit (i.e. if in the above example maxBiomass is achieved after 20 trees, then execution stops there).
