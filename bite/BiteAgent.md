@@ -70,7 +70,9 @@ Variables | Description
 MAT | mean annual temperature (°C)
 MAP | annual precipitation sum (mm)
 TMonthX | with `X` in 1..12, mean temperature of the month 1..12 (e.g. `TMonth6` for mean temp of June)
+PMonthX | with `X` in 1..12, monthly precipitation sum of the month 1..12 (mm) (e.g. `PMonth6` for precipipation of June)
 GDD | growing degree days (temperature sum of (t_mean-threshold) for all days with t_mean > threshold, with threshold=5°)
+GDD10 | growing degree days (temperature sum of (t_mean-threshold) for all days with t_mean > threshold, with threshold=10°)
 
 
 ## Items
