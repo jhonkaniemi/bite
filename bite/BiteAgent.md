@@ -94,15 +94,21 @@ Note that at least one `BiteLifeCycle` object is mandatory for each agent.
 
 ## Properties
 
+* ### `onTreeRemovedFilter`: int
+The property determines for which trees that are removed in iLand the `onTreeRemoved` event handler is called. If the value = 0, the event is never triggered (the default). The value is a binary combination of one or more reasons (that are available as enumeration of the Tree Javascript object in iLand). 
+
+See also: `onTreeRemoved()`
+
+
 ## Events
 * ### `onSetup(agent)` 
-The `onSetup` event is triggered after all items are created; 
+The `onSetup` event is triggered after all items are created; this is a good place
+for setting up user defined variables. 
 
 `agent` is the `BiteAgent` object.
 
 * ### `onYearBegin(agent)` 
-The `onYearBegin` event is triggered before the agent is executed. This is a good place
-for setting up user defined variables. 
+The `onYearBegin` event is triggered before the agent is executed. 
 
 `agent` is the `BiteAgent` object.
 
@@ -110,6 +116,47 @@ for setting up user defined variables.
 The `onYearEnd` event is triggered after the execution of the agent.  
 
 `agent` is the `BiteAgent` object.
+
+* ### `onTreeRemoved(cell, tree, reason)` 
+The `onTreeRemoved` event is triggered whenever a tree (>4m) is removed in iLand. The event is only triggered for specific reasons, which are specified with the `onTreeRemovedFilter` property.
+
+`cell` is the `BiteCell` where the tree is located, `tree` the Javascript representation of the affected tree (http://iland.boku.ac.at/apidoc/classes/Tree.html), and `reason` one of the following:
+
+Value | Enumeration | Description
+------|----------| -----------
+1 | Tree.RemovedDeath | natural mortality
+2 | Tree.RemovedHarvest | Harvested by management
+4 | Tree.RemovedDisturbance | killed by disturbance event (e.g. wind)
+8 | Tree.RemovedSalavaged | tree removed by salvage operation (management)
+16 | Tree.RemovedKilled | tree killed by management but remains as standing dead tree (but not removed from the forest)
+32 | Tree.RemovedCutDown | tree killed and cut down by management (not removed from the forest)
+
+```
+new BiteAgent({
+ ...
+ 	onTreeRemoved: function(cell, tree, reason) {  
+		if (reason == Tree.RemovedHarvest)
+			Bite.log(cell.info() + ":" + tree.species);
+		// calculate basal area from the tree
+		var ba = cell.agent.exprBasalArea.value(tree);
+		// alternatively: var ba = tree.expr('basalarea'); or var ba=tree.dbh*tree.dbh/40000*3.141592;
+		// update the user defined variable stockBasalArea
+		cell.setValue('stockBasalArea', cell.value('stockBasalArea') + ba );
+	},
+	onSetup: function(agent) {
+		// called during setup of the agent; 
+		// event should be triggered when a tree is harvested or killed by disturbance
+		// note the bitwise-OR operation
+		agent.onTreeRemovedFilter = Tree.RemovedHarvest | Tree.RemovedDisturbance; 
+		// create a variable that is used for tracking tree harvests
+		agent.addVariable('stockBasalArea');
+		// add a TreeExpr for efficient access to tree variables to the agent JS object
+		agent.exprBasalArea = new TreeExpr("basalarea");
+	}
+
+})
+
+```
 
 ## Methods
 
@@ -136,6 +183,9 @@ returns a info dump about the agent as a string. The dump includes characteristi
 * ### `evaluate(BiteCell cell, string expression)`: numeric
 returns the result of the evaluation of `expression` in the context of `cell`. Cell variables are available.
 
+* ### `addVariable(string var_name)`
+adds a numeric grid as a variable to the agent that can be accessed with the name `var_name`. This allows to add custom variables to the agent that can be accessed by all items of the agent.
+
 * ### `addVariable(Grid grid, string var_name)`
 adds the numeric grid `grid` as variable to the agent that can be accessed with the name `var_name`. This allows to add spatial data
 to the agent (e.g. for management purposes).
@@ -148,6 +198,7 @@ to the agent (e.g. for management purposes).
 		item.agent.addVariable(gr, 'mgmtgrid');
 		}, // part of the Item
 ```
+
 * ### `updateDrawGrid(string expression)`
 fills the internal draw grid of the agent (which is also for used for visualization) with the result of `expression`.
 
