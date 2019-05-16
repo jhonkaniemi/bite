@@ -206,13 +206,41 @@ fills the internal draw grid of the agent (which is also for used for visualizat
    my_agent.updateDrawGrid('mgmtgrid'); // fills the internal grid with the 'mgmtgrid' variable
    my_agent.drawGrid().save('temp/test.asc'); // access the draw grid
 ```
+* ### `updateDrawGrid(JSfunction function)`
+fills the internal draw grid of the agent (which is also for used for visualization) with the result of the javascript function `function`. The `function` is called with the BiteCell as variable.
 
-See also: `saveGrid()`
+```
+   my_agent.updateDrawGrid(function(cell){return cell.value('mgmtgrid'); }); // fills the internal grid with the 'mgmtgrid' variable
+   my_agent.drawGrid().save('temp/test.asc'); // access the draw grid
+```
+
+* ### `updateVariable(string var_name, double value)`
+sets the values of the grid variable `var_name` to `value`.
+
+See also `addVariable()`.
+
+* ### `updateVariable(string var_name, string expression)`
+sets the values of the grid variable `var_name` with the result of `expression`.
+
+See also `addVariable()`.
+
+* ### `updateVariable(string var_name, JSfunction function)`
+sets the values of the grid variable `var_name` with the result of the Javascript function `function`. The function is called with the BiteCell as parameter.
+
+See also `addVariable()`.
+
+```
+// sets 'my_var' to 'index' + some random noise (admittedly not useful)
+my_agent.updateVariable('myvar', function(cell) { return cell.value('index')+1000*Math.random(); } );
+// to save 'my_var' as a grid:
+my_agent.saveGrid('my_var', 'temp/test.asc');
+```
       
 * ### `drawGrid()`: Grid
 returns a Javascript reference to the internal grid of the agent (see http://iland.boku.ac.at/apidoc/classes/Grid.html).
 
 * ### `saveGrid(string expression, string file_name)`
 convenience function to save the expression `expression` to a file (relative paths are relative to the project folder).
+
 
 ```
