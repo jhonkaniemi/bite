@@ -43,6 +43,7 @@ __Notes__:
 * if both specified, the smaller value of `fractionOfTrees` and `maxTrees` is effective; e.g. if the total number of trees is 100, fractionOfTrees 0.5, and maxTrees 80, then 50 trees are affected. If also a `maxBiomass` is provided, it acts as an additional limit (i.e. if in the above example maxBiomass is achieved after 20 trees, then execution stops there).
 * impact items are processed in the given sequence.
 * the properties `fractionOfTrees`, `fractionPerTree`, `maxTrees`, and `maxBiomass` are dynamic expressions (i.e. can be calculated dynamically).
+* if `maxBiomass` is provided, the model accounts for overshooting the threshold by scaling the impact of the last tree so that the total impact on the cell equals `maxBiomass`. 
 
 Example:
 ```
