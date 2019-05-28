@@ -65,9 +65,9 @@ t | the time step, set to `1/growthIterations`
 * ### `growthRateFunction` (Expression)
 calculates the growth rate used in `growthFunction`; the growth rate can be dependent on any cell variables (e.g. climatic variables).
 
-* ### `consumption` (numeric)
+* ### `consumption` (dynamic expression)
  consumption rate of the agent, defined as kg host biomass / units agent per year. It means, that an unit of agent
- consumes `consumption` kg of host biomass per year (e.g. a defoliater might consume x kg leaves / kg agent biomass per year).
+ consumes `consumption` kg of host biomass per year (e.g. a defoliater might consume x kg leaves / kg agent biomass per year). The property is a dynamic expression evaluated in the context of the current cell.
 
 * ### `growthIterations` (integer)
 The growth function 
