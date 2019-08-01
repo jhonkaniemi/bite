@@ -13,6 +13,11 @@ is `true` when a cell is activelty dispersing the agent. Can be set via Javascri
 * ### `yearsLiving` (int, read-only)
 The number of years a cell is continuously occupied by the agent (the value is reset if a cell dies).
 
+* ### `outbreakYears` (int, read-only)
+The number of years the current agent is in an outbreak phase. The value is 0 if outbreaks are not 
+simulated (see [LifeCycle](BiteLifeCycle.md) for details).
+
+
 * ### `agent` ([agent](BiteAgent.md))
 A reference to the agent object.
 
