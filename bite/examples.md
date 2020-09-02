@@ -206,7 +206,7 @@ function randomSpread(n, gr) {
 }
 ```
 
-##Roe deer
+## Roe deer
 
 ```
 var roe_deer = new BiteAgent({
@@ -261,7 +261,7 @@ growth: new BiteBiomass({
 });
 ```
 
-##Ash dieback
+## Ash dieback
 
 ```
 var ash_dieback = new BiteAgent({
@@ -333,11 +333,11 @@ function randomSpread(n, gr) {
 
 ```
 
-##Asian long-horned beetle
+## Asian long-horned beetle
 
 ```
 ```
-##Mastodon
+## Mastodon
 
 ```
 var mastodon = new BiteAgent({
