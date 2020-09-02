@@ -3,6 +3,8 @@
 BITE examples is a collection of different biotic agents showcasing different functionalities of BITE 
 and how the agent parameters are setup in Javascript. 
 
+## Heterobasidion root rot
+
 ## Gypsy moth
 
 European gypsy moth (from hereafter gypsy moth) is a defoliator native to Europe where it causes substantial disturbance especially on oaks (Mcmanus and Csóka, 2007). In 1869 it was also introduced to North America, where it became an invasive pest seriously threatening oak forests in the Northeastern USA (Elkinton and Liebhold, 1990). Adult gypsy moths are poor dispersers, but the first instar larvae spread passively over short distances via wind (Hunter and Elkinton, 2000). However, human-aided long distance dispersal is driving the invasion in North America (Liebhold et al., 1992). The development of a gypsy moth from egg to adult takes one season and during that development, each larvae consume about 3–4 g of foliage (Sharov and Colbert, 1996). Outbreaks of gypsy moth typically last for several years and occur both in Europe and North America in 8 – 12 year intervals (Johnson et al., 2005). Gypsy moth dispersal was approximated with a Gaussian dispersal kernel in BITE (Elderd et al., 2013), and its population dynamics was simulated with a logistic growth equation based on growth rates modified from Lustig et al. (2017). The simulated impact was consumption of foliage biomass, with preference for small over tall trees.   
@@ -99,3 +101,11 @@ function randomSpread(n, gr) {
 	}
 }
 ```
+
+##Roe deer
+
+##Ash dieback
+
+##Asian long-horned beetle
+
+##Mastodon
