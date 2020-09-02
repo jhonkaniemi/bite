@@ -349,6 +349,104 @@ function randomSpread(n, gr) {
 ## Asian long-horned beetle
 
 ```
+var BarkBeetle = new BiteAgent({
+	name: 'Asian longhorned beetle - Anolophora glabripennis', description: "Stem boring insect", 
+	cellSize: 10, 
+	lifecycle: new BiteLifeCycle({ voltinism: '1', // generations per year
+				dieAfterDispersal: false, //function(cell){if (cell.value('yearsLiving')>4) {return 'true'}; return 'false';}, // after dispersal a cell dies
+				spreadFilter: 'yearsLiving>0', // only symptomatic cells spread 
+				spreadDelay: 1, // number of years after colonization
+				spreadInterval: 1,   // min. frequency of spread (1/years)
+				mortality: function(cell) {     // agent and cell mortality is assumed to depend on tree density in the cell 
+				var Ntrees = cell.trees.sum('1'); // number of trees
+				var yrl = cell.value('yearsLiving'); //time since colonization
+				if ( Ntrees < 1 & yrl>2){		//density below 1 and time since colonization over 2 years
+				return true;
+				} else {
+				return false;
+				}
+				}  
+		}),
+	
+	dispersal: new BiteDispersal({
+	kernel: 'exp(-0.1478*sqrt(x))', //dispersal kernel from Smith et al 2001
+	debugKernel: 'temp/kerneltest_alb.asc', //raster file for debugging the kernel function
+	maxDistance: 1000,  // maximum spreading distance is 1000m
+	onBeforeSpread: function(bit) { if (Globals.year<2) {randomSpread(1, bit.grid); console.log("added 1 px");} }   //function to introduce the agent on first simulation year in a random cell (see below that coordinates are given for landscape centerpoint
+		}), 
+	
+	colonization: new BiteColonization({ 
+		dispersalFilter: 'rnd(0,1) < dispersalGrid', // stochasticity included in the dispersal and colonization processes with random number generator
+		treeFilter: 'species=acps AND dbh>=7.5' // the cell must have Sycamore (Acer pseudoplatanus) as host and tree diameter needs to be over 7.5 cm (Dodds and Orwig 2011)
+	   }),
+
+
+		impact: new BiteImpact({ 
+		impact: [			//impact arrays
+		   {target: 'tree', fractionOfTrees: 'min(yearsLiving*0.002,0.02)'} // remove linearly 0.2% of trees in the cell every year until 10 years after which the mortality is constant
+		   ],
+		   onImpact: function(cell) { 			//launch eradication of an agent by harvesting the stand after x years after colonization (see below for more details)
+		    console.log('Impact on stand: ' + cell.value('standId'));
+			ABELink(cell.value('standId'), cell.value('yearsLiving') ); // accumulate impact 			
+		}
+	}),
+	
+	
+	output: new BiteOutput({
+		outputFilter: "active=true",
+		tableName: 'BiteTabx',
+		columns: ['yearsLiving']
+		
+	}),
+	onSetup: function(agent) { 	//loads the standIds to track in which stand the BITE cell is 
+		agent.addVariable('tfirst');
+		var grid = Factory.newGrid();
+		grid.load('gis/bite.stands.asc');
+		agent.addVariable(grid, 'standId');
+		}, // part of the Item
+		
+	onYearEnd: function(agent) { 
+		agent.updateVariable('tfirst', function(cell) {
+			if (cell.value('tfirst')>0) return cell.value('tfirst')+1; // increment
+			if (cell.cumYearsLiving==1) return 1; // start
+			return 0; 
+		});
+		agent.saveGrid('yearsLiving', 'temp/alb_yliv.asc');
+		agent.saveGrid('cumYearsLiving', 'temp/alb_cyliv.asc');
+		agent.saveGrid('tfirst', 'temp/alb_tfirst.asc');
+		agent.saveGrid('active', 'temp/alb_active.asc'); }
+
+});
+
+function randomSpread(n, gr) {
+	for (var i=0;i<n;++i) {
+		var x = Math.random()*gr.width;
+    var y = Math.random()*gr.height;
+    gr.setValue(250,250,1);
+	}
+}
+
+
+// Management Link (to ABE)
+var stand_damage = {}
+
+// accumulate damage for stand 'standId'
+function ABELink(standId, damage,threshold) {
+   if (!(standId in stand_damage))
+      stand_damage[standId] = 0;
+   stand_damage[standId] += damage;   
+
+   if (stand_damage[standId] > threshold) {
+	   console.log("accumulated damage for stand " + standId + " >1: " + stand_damage[standId] + "; starting management");
+	   // invoke management for the stand
+	   fmengine.runActivity(standId, 'disturbance_response');
+
+	   stand_damage[standId] = 0; // reset damage counter again
+   }   
+
+}
+
+
 ```
 ## Mastodon
 
