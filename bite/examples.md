@@ -5,6 +5,110 @@ and how the agent parameters are setup in Javascript.
 
 ## Heterobasidion root rot
 
+```
+var Heterobasidion = new BiteAgent({
+    name: "Heterobasidion root rot", description: "Root disease",
+    cellSize: 20,
+    climateVariables: ['MAT'], //mean annual temperature as climate variable for the BiteAgent items
+	lifecycle: new BiteLifeCycle({ voltinism: 1, // max 1 generation per year, growth rate adjusts the true population growth
+				dieAfterDispersal: false, // cell does not die even with dispersal
+				spreadFilter: 'yearsLiving>1', // condition that needs to be met before spread 
+				spreadDelay: 1, // number of years after colonization
+				spreadInterval: 1   // min. frequency of spread (1/years)
+    }),
+
+    dispersal: new BiteDispersal({
+        kernel: 'min((x)^-1.5,1)', //simple power-law kernel modified from Kallio 1970, Möykkynen et al 1997  
+        debugKernel: 'temp/kerneltest_heterobasidion.asc',  //raster file for debugging the kernel function
+        maxDistance: 1000,   // maximum spreading distance is 1000m
+        onBeforeSpread: function (bit) { if (Globals.year < 2) { randomSpread(1, bit.grid); console.log("added 1 px"); } }  //function to introduce the agent on first simulation year in a random cell (see below that coordinates are given for landscape centerpoint
+    }),
+
+    colonization: new BiteColonization({
+        dispersalFilter: 'rnd(0,1) < (dispersalGrid)+0.005', // stochasticity included in the dispersal and colonization processes with random number generator, additional 0.5% chance for long distance dispersal (1-400 km) derived from Möykkynen et al 1997 and Kallio 1970
+        cellFilter: 'stumpBasalArea>0',  //stumpBasalArea is a vegetation variable from iLand. If the cell is harvested at t, then the stumpBasalArea is x m2. If the time since harvest is more than 0, then stumpBasalArea=0. Heterobasidion spores need freshly cut stumpBasalArea for colonization.
+        initialAgentBiomass: 0.01 // the initial agent biomass is assumed to be low as colonization can occur from few tiny spores
+    }),
+
+    growth: new BiteBiomass({
+        hostTrees: 'species=pisy', // define the hosttrees to be Scots pine (Pinus sylvestris)
+        hostBiomass: function (cell) {	//calculate the host biomass available for agent consumption
+            if (cell.value('yearsLiving') < 10) {  //first, we assume that it takes roughly ten years for the agent to proceed from initial stump to infect healthy tree roots 
+                var bm_stumps = cell.value('stumpRootMass'); // thus, calculate here only the root mass of stumps available for consumption
+                return bm_stumps;   //total stump biomass
+            } else {   //after 10 years since initial colonization, trees can be infected and consumed
+                var bm_stumps = cell.value('stumpRootMass'); // rootmass of all pine stumps
+                var bm_trees = cell.trees.sum('rootmass'); // rootmass of all pine trees
+                var rootMass = bm_stumps + bm_trees; //total biomass for the fungi to consume
+                return rootMass;
+            }
+        },
+        mortality: 0,  // no additional mortality
+        growthFunction: 'K / (1 + ( (K - M) / M)*exp(-r*t))', // logistic growth function, where K=hostbiomass / consumption; M=agentBiomass; r=relative growth rate coefficient; t=time
+        growthRateFunction: '((6.52*MAT+(4.29*100-6.52*19))/100)',  //relative growth rate coefficient, we here assume a temperature related growth rate by Honkaniemi et al 2017
+        consumption: '(6.52*MAT+(4.29*100-6.52*19))/100', // for simplicity, we assumed here the consumption to be equal to the agent growth rate
+        growthIterations: 10 //10 iterative rounds of biomass calculation in case the biomass in the cell runs out during the time step
+    }),
+
+    impact: new BiteImpact({
+        impactFilter: 'yearsLiving>10', //impact occurs once the agent has colonized the cell for more than 10 years (affects living trees)
+        impact: [
+		   { target: 'roots',  //target the root compartment of trees
+		       maxBiomass: function (cell) { var agentimp = cell.value('agentImpact') - ((3.141592 * cell.value('stumpBasalArea') * 0.5) / 3); return agentimp; }, //agentImpact includes both stump and tree rootmass, but we want in this case to reduce only the tree rootmass from the tree list trees. Thus we need to approximate the stump rootmass value assuming that single stump was infected. We assume the stump root system as a cone.
+		       fineRootFactor: 1,  //equal fraction of fine roots is affected compared to the consumed coarse roots
+		       order: 'mod(x+10,20)^2 + mod(y+10,20)^2'  // trees are affected from the cell center in a circular towards the edges of the cell
+		   }]
+    }),
+
+    output: new BiteOutput({
+        outputFilter: "active=true",
+        tableName: 'BiteTabx',
+        columns: ['yearsLiving', 'MAT', 'stumpBasalArea']
+
+    }),
+    onYearEnd: function (agent) {
+        agent.saveGrid('yearsLiving', 'temp/heterobasidion_yliv.asc');
+        agent.saveGrid('cumYearsLiving', 'temp/heterobasidion_cyliv.asc');
+        agent.saveGrid('active', 'temp/heterobasidion_active.asc');
+        agent.saveGrid('stumpBasalArea', 'temp/heterobasidion_baharvest.asc');
+        agent.updateVariable('stumpBasalArea', 0); // reset the grid
+    },
+
+    onTreeRemoved: function (cell, tree, reason) {
+        if (reason == Tree.RemovedHarvest)
+        //Bite.log('tree harvested:' + cell.info() + ":" + tree.species);
+            var ba = cell.agent.exprBasalArea.value(tree);
+			var rm = cell.agent.exprRootMass.value(tree);
+			var sd = cell.agent.exprDensity.value(tree);
+        cell.setValue('stumpBasalArea', cell.value('stumpBasalArea') + ba);
+		cell.setValue('stumpRootMass', cell.value('stumpRootMass') + rm);
+		cell.setValue('stumpDensity', cell.value('stumpDensity') + sd);
+        //Bite.log('tree harvested:' + cell.info() + ":" + tree.species + ":" + ba);
+    },
+
+    onSetup: function (agent) {
+        // called during setup of the agent
+        agent.onTreeRemovedFilter = Tree.RemovedHarvest | Tree.RemovedDisturbance;
+        // create a variable that is used for tracking tree harvests
+        agent.addVariable('stumpBasalArea');
+        agent.addVariable('stumpRootMass');
+        agent.addVariable('stumpDensity');
+        // add a TreeExpr for efficient access to tree variables
+        agent.exprBasalArea = new TreeExpr("basalarea");
+        agent.exprRootMass = new TreeExpr("rootmass");
+        agent.exprDensity = new TreeExpr('1');
+    }
+
+});
+
+function randomSpread(n, gr) {
+	for (var i=0;i<n;++i) {
+		var x = Math.random()*gr.width;
+    var y = Math.random()*gr.height;
+    gr.setValue(125,125,1);
+	}
+}
+```
 ## Gypsy moth
 
 European gypsy moth (from hereafter gypsy moth) is a defoliator native to Europe where it causes substantial disturbance especially on oaks (Mcmanus and Csóka, 2007). In 1869 it was also introduced to North America, where it became an invasive pest seriously threatening oak forests in the Northeastern USA (Elkinton and Liebhold, 1990). Adult gypsy moths are poor dispersers, but the first instar larvae spread passively over short distances via wind (Hunter and Elkinton, 2000). However, human-aided long distance dispersal is driving the invasion in North America (Liebhold et al., 1992). The development of a gypsy moth from egg to adult takes one season and during that development, each larvae consume about 3–4 g of foliage (Sharov and Colbert, 1996). Outbreaks of gypsy moth typically last for several years and occur both in Europe and North America in 8 – 12 year intervals (Johnson et al., 2005). Gypsy moth dispersal was approximated with a Gaussian dispersal kernel in BITE (Elderd et al., 2013), and its population dynamics was simulated with a logistic growth equation based on growth rates modified from Lustig et al. (2017). The simulated impact was consumption of foliage biomass, with preference for small over tall trees.   
@@ -104,8 +208,188 @@ function randomSpread(n, gr) {
 
 ##Roe deer
 
+```
+var roe_deer = new BiteAgent({
+	name: "Roe deer", description: "Browser", 
+	cellSize: 1000,
+	lifecycle: new BiteLifeCycle({ voltinism: 1, // max 1 generation per year, growth rate adjusts the true population growth
+				dieAfterDispersal: false, // cell does not die even with dispersal
+				spreadFilter: 'agentBiomass>0', // condition that needs to be met before spread 
+				spreadDelay: 1, // number of years after colonization
+				spreadInterval: 1   // min. frequency of spread (1/years)
+		}),
+				
+	dispersal: new BiteDistribution({	}), // agent is distributed evenly across the landscape 
+	
+	colonization: new BiteColonization({ 
+		dispersalFilter: 'dispersalGrid', // 100% chance of new colonization
+		saplingFilter:'species=abal and height<1.3', // Silver fir saplings with height less than 1.3 m are hosts
+		initialAgentBiomass: 14*24 // the initial agent biomass in each cell is calculated assuming the roe deer density to be 14 animals per 100 ha * average mass of 24 kg per animal  
+	   }),
+
+	
+growth: new BiteBiomass({
+		hostTrees: '(species=abal) and height<1.3', // these trees are the hosts
+		hostBiomass: function(cell) {
+		   cell.reloadSaplings(); // reload the sapling list
+		   cell.saplings.filter('species=abal and height<1.3'); // filter saplings to meet the host criteria
+		   var bm_saplings = cell.saplings.sum('nrep*foliagemass'); // calculate the available total biomass for saplings = foliage biomass * number of represented stems per cohort
+		   return bm_saplings; // total sum of host biomass in the cell
+	    },
+		mortality: 0, //no additional mortality
+		growthFunction: 'K / (1 + ( (K - M) / M)*exp(-r*t))', // logistic growth function, where K=hostbiomass / consumption; M=agentBiomass; r=relative growth rate coefficient; t=time
+		growthRateFunction: '0',  // no population growth, assume that the local population is in equilibrium (birth=death,immigrate=emigrate)
+		consumption: 3.66, // kg agent/kg host, consumption calculated assuming daily diet preferences and consumption rates from different environments (Drozdz and Osiecki, 1973; Tixier and Duncan, 1996)
+		growthIterations: 10  //10 iterative rounds of biomass calculation in case the biomass in the cell runs out during the time step
+		}),		
+		
+	impact: new BiteImpact({ 
+		impactFilter: 'agentImpact>0', //impact occurs once the agent has consumed the first biomass units of the host
+		impact: [      				   //impact arrays 
+		   {target: 'browsing', fractionOfTrees: 'agentImpact/hostBiomass'} // browsing effect for saplings, the fraction affected is calculated as a fraction of consumed host biomass from total biomass
+		]
+	}),
+	
+	output: new BiteOutput({
+		outputFilter: "active=true",
+		tableName: 'BiteTabx',
+		columns: ['yearsLiving', 'hostBiomass', 'agentImpact','agentBiomass']
+		
+	}),
+	onYearEnd: function(agent) { agent.saveGrid('yearsLiving', 'temp/roedeer_base.asc'); }
+
+});
+```
+
 ##Ash dieback
+
+```
+var ash_dieback = new BiteAgent({
+	name: "Ash dieback - Hymenoscyphus fraxineus", description: "Fungal disease", 
+	cellSize: 50, 
+	lifecycle: new BiteLifeCycle({ voltinism: 1, // max 1 generation per year
+				dieAfterDispersal: false, // cell does not die after dispersal
+				spreadDelay: 1, // number of years after colonization
+				spreadInterval: 1,   // min. frequency of spread (1/years)
+				spreadFilter: 'yearsLiving>0', // only symptomatic cells spread
+				mortality: function(cell) {     // agent and cell mortality is assumed to depend on tree density in the cell 
+				var Ntrees = cell.trees.sum('1'); // number of trees
+                var density = (Ntrees*10000)/2500; // density of trees in the cell
+				var yrl = cell.value('yearsLiving'); //time since colonization
+				if ( density < 100 & yrl>3) {  //if the density falls below 100 trees per ha after 3 years from colonization, the cell is no longer suitable for Ash dieback
+				return true;
+				} else {
+				return false;
+				}
+				}
+		}),
+				
+    dispersal: new BiteDispersal({
+	  kernel: '(((3.30-1)*(3.30-2))/(2*3.141592*206.26)^2*(1+x/206.26)^(-3.30))*1000', //Inverse power law function to calculate the dispersal kernel from Grosdidier et al (2019)
+	  debugKernel: 'temp/kerneltest_ash.asc',  //raster file for debugging the kernel function
+	  maxDistance: 1500,		// maximum spreading distance is 1500m
+	  onBeforeSpread: function(bit) { if (Globals.year<2) {randomSpread(1, bit.grid); console.log("added 1 px");} }   //function to introduce the agent on first simulation year in a random cell (see below that coordinates are given for landscape centerpoint
+		}), 
+
+	colonization: new BiteColonization({ 
+		dispersalFilter: 'rnd(0,1) < dispersalGrid', // stochasticity included in the dispersal and colonization processes with random number generator
+		treeFilter: 'species=frex',  //European ash trees are hosts
+		saplingFilter: 'species=frex'	//European ash saplings are hosts
+	   }),
+	   
+/*	 Defolation impact from Timmerman et al 2017
+The logistic functions were fitted visually to the data. Only the heaviest defoliation class 50-100% was used in the impact arrays.
+*/
+  	impact: new BiteImpact({ 
+		impactFilter: 'yearsLiving>1',  //impact occurs only after the first year since colonization
+		impact: [     //impact arrays
+		   {treeFilter: 'mod(id, 100)<>42', target: 'foliage' ,fractionPerTree: 'rnd(0.5,1)', 	fractionOfTrees: '0.3/(1+exp(-(yearsLiving-2.5)))',order='height'}, //1% of the population is considered resistant to the disease (using modulo operator in the treeFilter), impact is on folaige and the experssions are derived from Timmerman et al 2017 
+		   {target:'sapling', fractionOfTrees='0.8/(1+exp(-(yearsLiving-6)))' ,order='dbh'} //kill saplings	based on Timmerman et al 2017 starting from smallest to largest	   
+		]
+	}),                  
+
+ 
+
+	output: new BiteOutput({
+		outputFilter: "active=true",
+		tableName: 'BiteTabx',
+		columns: ['yearsLiving']
+		
+	}),
+	onYearEnd: function(agent) { agent.saveGrid('yearsLiving', 'temp/ashdieback_yliv.asc');
+								 agent.saveGrid('cumYearsLiving', 'temp/ashdieback_cyliv.asc');
+								 agent.saveGrid('active', 'temp/ashdieback_active.asc'); }
+	
+
+});
+
+function randomSpread(n, gr) {
+	for (var i=0;i<n;++i) {
+		var x = Math.random()*gr.width;
+    var y = Math.random()*gr.height;
+    gr.setValue(50,50,1);
+	}
+}
+
+```
 
 ##Asian long-horned beetle
 
+```
+```
 ##Mastodon
+
+```
+var mastodon = new BiteAgent({
+	name: "Mastodon", description: "Extinct browser", 
+	cellSize: 1000,  //maximum reasonable cellsize regarding vegetation aggregation, mammal migration under development
+	lifecycle: new BiteLifeCycle({ voltinism: 1, // max 1 generation per year, growth rate adjusts the true population growth
+				dieAfterDispersal: false, // cell does not die even with dispersal
+				spreadFilter: 'agentBiomass>0', // condition that needs to be met before spread 
+				spreadDelay: 1, // number of years after colonization
+				spreadInterval: 1   // min. frequency of spread (1/years)
+		}),
+				
+	dispersal: new BiteDistribution({	}), // agent is distributed evenly across the landscape 
+	
+	colonization: new BiteColonization({ 
+	    dispersalFilter: 'dispersalGrid', // 100% chance of new colonization
+		treeFilter:'species=piab and dbh<=15', //Norway spruce with diameter at breast height less than 15cm are hosts
+		saplingFilter:'species=piab', //all Norway spruce saplings are hosts
+		initialAgentBiomass: 12000 // initial agent biomass is calculated assuming 1.5 mastodons per 100 ha with an average mass of 8tn per individual
+	   }),
+
+growth: new BiteBiomass({
+		hostTrees: '(species=piab and dbh<=15)', // define the hosttrees as above
+		hostBiomass: function(cell) {			// calculate the potential biomass available in the cell for agent consumption
+		   cell.reloadSaplings();  // trees are loaded automatically, but saplings need to be reloaded here
+		   cell.saplings.filter('species=piab'); // define the sapling hosts
+		   var bm_saplings = cell.saplings.sum('nrep*foliagemass'); // calculate the available total biomass for saplings = foliage biomass * number of represented stems per cohort
+		   var bm_trees = cell.trees.sum('foliagemass'); // calculate the available total biomass for trees
+		   return bm_saplings + bm_trees;   // total sum of host biomass in the cell
+		},
+		mortality: 0,  //no additional mortality
+		growthFunction: 'K / (1 + ( (K - M) / M)*exp(-r*t))', // logistic growth function, where K=hostbiomass / consumption; M=agentBiomass; r=relative growth rate coefficient; t=time
+		growthRateFunction: '0.01',  //relative growth rate coefficient, the population growth rate is 1%
+		consumption:  '(0.05*8000*365*0.2)/8000', // host consumption by agent unit - assumption: daily consumption is 5% of the body mass, 365 days, 80% of the diet is host plant
+		growthIterations: 10  //10 iterative rounds of biomass calculation in case the biomass in the cell runs out during the time step
+		}),		
+		
+	impact: new BiteImpact({ 
+		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
+		impact: [						//impact arrays 
+		   {target: 'browsing', fractionOfTrees: 'agentImpact/hostBiomass', order:'height'}, // browsing effect for sapligns, the fraction affected is calculated as a fraction of consumed host biomass from total biomass
+		   {treeFilter: 'dbh<=15', target: 'tree', fractionOfTrees: '0.05'} //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		]
+	}),
+	
+	output: new BiteOutput({
+		outputFilter: "active=true",
+		tableName: 'BiteTabx',
+		columns: ['yearsLiving', 'hostBiomass', 'agentImpact','agentBiomass']
+		
+	}),
+	onYearEnd: function(agent) { agent.saveGrid('yearsLiving', 'temp/mastodon_base.asc'); }
+
+});
+```
