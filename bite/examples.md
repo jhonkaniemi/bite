@@ -1,6 +1,6 @@
 # BITE Examples
 
-BITE examples is a collection of different biotic agents showcasing different functionalities of BITE 
+BITE examples is a collection of different biotic agents showcasing the various functionalities of BITE 
 and how the agent parameters are setup in Javascript. 
 
 ## Heterobasidion root rot
