@@ -538,3 +538,43 @@ growth: new BiteBiomass({
 
 });
 ```
+
+```javascript
+	impact: new BiteImpact({ 
+		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
+		impact: [						//impact arrays 
+//		   {target: 'browsing', fractionOfTrees: 'agentImpact/hostBiomass', order:'height'}, // browsing effect for sapligns, the fraction affected is calculated as a fraction of consumed host biomass from total biomass
+		   {treeFilter: 'dbh<=5', target: 'tree', fractionOfTrees: '0.025'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'dbh>5 and dbh<=10', target: 'tree', fractionOfTrees: '0.05'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'dbh>10 and dbh<=15', target: 'tree', fractionOfTrees: '0.075'} //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+
+		]
+	}),
+```
+
+```javascript
+	impact: new BiteImpact({ 
+		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
+		impact: [						//impact arrays 
+//		   {target: 'browsing', fractionOfTrees: 'agentImpact/hostBiomass', order:'height'}, // browsing effect for sapligns, the fraction affected is calculated as a fraction of consumed host biomass from total biomass
+		   {treeFilter: 'dbh<=5', target: 'tree', fractionOfTrees: '0.075'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'dbh>5 and dbh<=10', target: 'tree', fractionOfTrees: '0.05'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'dbh>10 and dbh<=15', target: 'tree', fractionOfTrees: '0.025'} //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+
+		]
+	}),
+	
+```
+
+```javascript
+	impact: new BiteImpact({ 
+		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
+		impact: [						//impact arrays 
+//		   {target: 'browsing', fractionOfTrees: 'agentImpact/hostBiomass', order:'height'}, // browsing effect for sapligns, the fraction affected is calculated as a fraction of consumed host biomass from total biomass
+//		   {treeFilter: 'dbh<=5', target: 'tree', fractionOfTrees: '0.025'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'dbh>5 AND dbh<=8', target: 'tree', fractionOfTrees: '0.05'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'dbh>12 AND dbh<=15', target: 'tree', fractionOfTrees: '0.05'} //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+
+		]
+	}),
+```
