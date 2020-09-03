@@ -3,12 +3,15 @@
 BITE examples is a collection of different biotic agents showcasing the various functionalities of BITE 
 and how the agent parameters are setup in Javascript. Each agent has a special example of some individual BITE application:
 
-Heterobasidion - primary dispersal in landscape and secondary dispersal within cell
-Gypsy moth - cyclic outbreaks
-Roe deer - introduction everywhere in the landscape without dispersal kernel
-Ash dieback - host tree resistance
-Asian long-horned beetle - management interventions
-Mastodon - ???
+
+Agent | example feature 
+----------| ----------
+Heterobasidion root rot | primary dispersal in landscape and secondary dispersal within cell
+Gypsy moth | cyclic outbreaks
+Roe deer | introduction everywhere in the landscape without dispersal kernel
+Ash dieback | host tree resistance
+Asian long-horned beetle | management interventions
+Mastodon | ???
 
 ## Heterobasidion root rot
 
