@@ -349,6 +349,10 @@ function randomSpread(n, gr) {
 
 ## Asian long-horned beetle
 
+Asian long-horned beetle (ALB) is an insect species native to China and Korea, attacking the stems of multiple deciduous tree species. Its larvae consume the wood, which can eventually lead to tree mortality (Haack et al., 1997; Hérard et al., 2006). Global trade has resulted in the introduction of ALB to many areas outside its native range (Eyre and Haack, 2017), as the species effectively disperses in wood packaging material. In the USA, it has been estimated that ALB could potentially destroy ~30% of all urban trees, and cause a significant disturbance to forest ecosystems (Nowak et al., 2001).There are several different estimates of the potential impact of ALB varying from ~3-30% (Faccoli and Gatto, 2016; Nowak et al., 2001), often based on the large-scale mortality of poplar plantations in the native habitat of the beetle in China (see Hu et al., 2009 and the references therein). However, quick eradication measures at infested sites have prevented accumulation of data to quantify real impacts caused by ALB. Dodds and Orwig (2011) studied the only large-scale infestation outside the native range in non-urban environment in Massachusetts, USA and found that tree mortality and growth losses were extremely rare even after more than 5 years after the infestations. ALB is a moderate disperser, and we here used a general leptokurtic dispersal kernel to simulate its spread (Shatz et al., 2016). We assumed that to colonize a cell, host with dbh>7.5 cm was needed to be present (Dodds and Orwig, 2011). Even though the life cycle of the agent is generally well-known (Haack et al., 2009), we didn’t find enough reliable quantitative information to parameterize the detailed agent population dynamics module of BITE. Furthermore, mortality rates remain uncertain; we here assumed that all trees would die 4 years after an infestation (Nowak et al., 2001)the annual mortality rates would be rather low (Dodds and Orwig, 2011) and we used a linearly increasing mortality rate from 0 to 2% over 10 year period to simulate the slow mortality process caused by the beetle. .
+
+
+
 ```
 var BarkBeetle = new BiteAgent({
 	name: 'Asian longhorned beetle - Anolophora glabripennis', description: "Stem boring insect", 
@@ -450,6 +454,8 @@ function ABELink(standId, damage,threshold) {
 
 ```
 ## Mastodon
+
+Mastodons were large mammals distantly related to elephants, inhabiting the forests of North America and Eurasia until their extinction ~10–11,000 years ago. Compared to mammoths (Mammuthus sp.), which were grazers, mastodons were forest-dwelling browsers with Picea spp. forming a significant part of their diet (Birks et al., 2018; Teale and Miller, 2012). Their estimated body mass was ~8000 kg, mastodons were thus slightly heavier than modern elephants although their shoulder height was roughly comparable (Larramendi, 2015). We assumed mastodons to inhabit the whole test landscape with an initial density of 1.5 individuals per 100 ha, corresponding to the estimated densities of Pleistocene megaherbivores (120 kg ha-1) (Bakker et al., 2016). Mastodon population growth rate was assumed to be 1% yr-1 using a logistic growth model. We assumed that mastodons were able to browse trees up to 4 m height, with a preference for trees between 0-2 m (Guy, 1976) and the occasional uprooting of trees, similar to modern elephants (Scheiter and Higgins, 2012; Shannon et al., 2008). The diet was assumed to consist of 20% Norway spruce (Picea abies (L.) Karst.).
 
 ```
 var mastodon = new BiteAgent({
