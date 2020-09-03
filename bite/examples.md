@@ -1,7 +1,14 @@
 # BITE Examples
 
 BITE examples is a collection of different biotic agents showcasing the various functionalities of BITE 
-and how the agent parameters are setup in Javascript. 
+and how the agent parameters are setup in Javascript. Each agent has a special example of some individual BITE application:
+
+Heterobasidion - primary dispersal in landscape and secondary dispersal within cell
+Gypsy moth - cyclic outbreaks
+Roe deer - introduction everywhere in the landscape without dispersal kernel
+Ash dieback - host tree resistance
+Asian long-horned beetle - management interventions
+Mastodon - ???
 
 ## Heterobasidion root rot
 
@@ -351,7 +358,7 @@ function randomSpread(n, gr) {
 
 Asian long-horned beetle (ALB) is an insect species native to China and Korea, attacking the stems of multiple deciduous tree species. Its larvae consume the wood, which can eventually lead to tree mortality (Haack et al., 1997; Hérard et al., 2006). Global trade has resulted in the introduction of ALB to many areas outside its native range (Eyre and Haack, 2017), as the species effectively disperses in wood packaging material. In the USA, it has been estimated that ALB could potentially destroy ~30% of all urban trees, and cause a significant disturbance to forest ecosystems (Nowak et al., 2001).There are several different estimates of the potential impact of ALB varying from ~3-30% (Faccoli and Gatto, 2016; Nowak et al., 2001), often based on the large-scale mortality of poplar plantations in the native habitat of the beetle in China (see Hu et al., 2009 and the references therein). However, quick eradication measures at infested sites have prevented accumulation of data to quantify real impacts caused by ALB. Dodds and Orwig (2011) studied the only large-scale infestation outside the native range in non-urban environment in Massachusetts, USA and found that tree mortality and growth losses were extremely rare even after more than 5 years after the infestations. ALB is a moderate disperser, and we here used a general leptokurtic dispersal kernel to simulate its spread (Shatz et al., 2016). We assumed that to colonize a cell, host with dbh>7.5 cm was needed to be present (Dodds and Orwig, 2011). Even though the life cycle of the agent is generally well-known (Haack et al., 2009), we didn’t find enough reliable quantitative information to parameterize the detailed agent population dynamics module of BITE. Furthermore, mortality rates remain uncertain; we here assumed that all trees would die 4 years after an infestation (Nowak et al., 2001)the annual mortality rates would be rather low (Dodds and Orwig, 2011) and we used a linearly increasing mortality rate from 0 to 2% over 10 year period to simulate the slow mortality process caused by the beetle. .
 
-Asian long-horned beetle is using 4 of the core modules similar to ash dieback: 1) Introduction, 2) Dispersal, 3) Colonization, and 4) Impact. However, the information for asian long-horned beetle was more limited compared to ash dieback and many of the parameters were estimated based on more qualitative analysis from few publications. The dispersal kernels are often the most well-known parameters for BITE and that was the case for ALB as well, where several papers have been published estimating the agent disperal based on different data sources. The impact of ALB infestation was the least known parameter as in most cases when ALB are introduced the rapid eradication measures take place leading to increased mortality of trees, not due to agent itself but eradication harvests. Thus, ALB serves here as an example how management interventions could be applied in the BITE/iLand framework. 
+Asian long-horned beetle is using 4 of the core modules similar to ash dieback: 1) Introduction, 2) Dispersal, 3) Colonization, and 4) Impact. However, the information for asian long-horned beetle was more limited compared to ash dieback and many of the parameters were estimated based on more qualitative analysis from few publications. The dispersal kernels are often the most well-known parameters for BITE and that was the case for ALB as well, where several papers have been published estimating the agent disperal based on different data sources. The impact of ALB infestation was the least known parameter as in most cases when ALB are introduced the rapid eradication measures take place leading to increased mortality of trees, not due to agent itself but eradication harvests. Thus, ALB serves here as an example how management interventions could be applied in the BITE/iLand framework. When the `BiteImpact`
 
 ```
 var BarkBeetle = new BiteAgent({
