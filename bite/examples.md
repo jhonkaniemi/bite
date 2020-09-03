@@ -21,7 +21,7 @@ Heterobasidion uses five different core modules of BITE: 1) Introduction, 2) Dis
 
 Heterobasidion root rot is an example agent of two different dispersal methods. First, the primary dispersal in air by basidiospores is simuated with a simple power-law kernel with a `maxDistance` of 1000 meters. Colonization of cells is dependent here on forest management as harvesting creates stumps favoring the spore germination and colonization of a cell. Thus, we track how much fresh stump surface each cell contains. The secondary dispersal in cells where Heterobasidion have established is with mycelia via root contacts. This we have taken into account in this example code in the `BiteImpact`item where the trees are affected from the cell center outwards mimicking a typical expanding mortality/infection center for Heterobasidion root rot. The impact itself is a decrease of root biomass, which in iLand reduces the biomass of both coarse and fine roots affecting the carbon resources of a tree and further affecting the tree growth eventually leading to tree mortality.
 
-```
+```javascript
 var Heterobasidion = new BiteAgent({
     name: "Heterobasidion root rot", description: "Root disease",
     cellSize: 20,
@@ -133,7 +133,7 @@ Gypsy moth uses five different core modules of BITE: 1) Introduction, 2) Dispers
 
 Introduction and dispersal are simulated with BiteDispersal item, where the agent is introduced into the landscape before the first dispersal during the first simulation year with `onBeforeSpread` using a helpful `randomSpread` function. This function can be used to introduce the agent on random points at any given time during the simulation. Dispersal here is defined to exclude human transport of gypsy moth and thus the `kernel` is simple Gaussian kernel with `maxDistance` of 50 meters. Gypsy moth can colonize a cell when the temperature sum (GDD10) for the cell is over 500 degree days and the host species, in this case Quercus robur is present. Population dynamics are simulated with the default logistic growth equation with modifications to increase the population growth rate during outbreaks and slow it down after. The vegetation impact is simulated start from the shortest trees and continue from tree to tree until the requirement for annual consumption of foliage is met. 
 
-```
+```javascript
 var GypsyMoth = new BiteAgent({
 	name: "Gypsy Moth", description: "defoliator", 
 	cellSize: 10,
@@ -228,7 +228,7 @@ Roe deer is a species of deer native to Europe. It is widespread throughout the 
 
 Roe deer uses four different core modules of BITE: 1) Introduction, 2) Colonization, 3) Population dynamics and 4) Impact. Roe deer as a roaming browser is an example of an agent without a specific dispersal kernel and introduction to the entire landscape using `BiteDistribution` item. As the cell size of 100ha covers quite a variety of forest stands, we aggregate the tree information from the entire cell and check that the host with height <1.3m is present. The carrying capacity for the entire cell is calculated as a foliage mass of all suitable hosts and that limits the population dynamics of the agent. Impact is then simulated with the `browsing` impact target meaning that the growth of the sapling is 0 for the given year mimicking browsing of leader shoots. The share of affected trees is calculated as a ratio between consumed biomass and total available biomass.
 
-```
+```javascript
 var roe_deer = new BiteAgent({
 	name: "Roe deer", description: "Browser", 
 	cellSize: 1000,
@@ -287,7 +287,7 @@ Hymenoscyphus fraxineus is the causal agent of ash dieback, a non-native disease
 
 Ash dieback is an example of an agent with limited, yet increasing, amount of literature available for parametrization. Thus, it uses only four of the core modules: 1) Introduction, 2) Dispersal, 3) Colonization, and 4) Impact. Information on population dynamics is scarce, but developing the population dynamics could be added later as information accumulates. Inverse power law function as a dispersal `kernel`function for ash dieback was used here. The spores of the agent disperse quite far and thus the `maxDistance`was set to 1500 meters. Colonization occurs in cells with the host species without any specific tree size requirements. The ash dieback is an example for a one simple, but coarse way to introduce host resistance in BITE. In the `BiteImpact`item the `treeFilter`is used to exclude 1% of the trees from impacts in the cell using modulo operations. The impact is then caused on both trees and saplings in iLand, by either reducing the foliage or killing a specific share of saplings. 
 
-```
+```javascript
 var ash_dieback = new BiteAgent({
 	name: "Ash dieback - Hymenoscyphus fraxineus", description: "Fungal disease", 
 	cellSize: 50, 
@@ -363,7 +363,7 @@ Asian long-horned beetle (ALB) is an insect species native to China and Korea, a
 
 Asian long-horned beetle is using 4 of the core modules similar to ash dieback: 1) Introduction, 2) Dispersal, 3) Colonization, and 4) Impact. However, the information for asian long-horned beetle was more limited compared to ash dieback and many of the parameters were estimated based on more qualitative analysis from few publications. The dispersal kernels are often the most well-known parameters for BITE and that was the case for ALB as well, where several papers have been published estimating the agent disperal based on different data sources. The impact of ALB infestation was the least known parameter as in most cases when ALB are introduced the rapid eradication measures take place leading to increased mortality of trees, not due to agent itself but eradication harvests. Thus, ALB serves here as an example how management interventions could be applied in the BITE/iLand framework. When the `BiteImpact` item is active, a value for a variable defining management intervetions is calculated `onImpact` and a threshold for the interventions is defined. In this example, we use time since colonization and assume to have a three year lag in detecting the agent and taking action.  
 
-```
+```javascript
 var BarkBeetle = new BiteAgent({
 	name: 'Asian longhorned beetle - Anolophora glabripennis', description: "Stem boring insect", 
 	cellSize: 10, 
@@ -466,7 +466,7 @@ function ABELink(standId, damage,threshold) {
 
 In the agent-based management module of iLand (http://iland.boku.ac.at/ABE?highlight=abe) we use the following JavaScript description to cut all the trees in a stand affected by the biotic agent once the above defined threshold for management intervention is exceeded:
 
-``` 
+```javascript
 var a_disturbance_response = { type: 'general',
                      schedule: 1000, // not reached 
                      action: function() {
@@ -482,7 +482,7 @@ var a_disturbance_response = { type: 'general',
 
 Mastodons were large mammals distantly related to elephants, inhabiting the forests of North America and Eurasia until their extinction ~10–11,000 years ago. Compared to mammoths (Mammuthus sp.), which were grazers, mastodons were forest-dwelling browsers with Picea spp. forming a significant part of their diet (Birks et al., 2018; Teale and Miller, 2012). Their estimated body mass was ~8000 kg, mastodons were thus slightly heavier than modern elephants although their shoulder height was roughly comparable (Larramendi, 2015). We assumed mastodons to inhabit the whole test landscape with an initial density of 1.5 individuals per 100 ha, corresponding to the estimated densities of Pleistocene megaherbivores (120 kg ha-1) (Bakker et al., 2016). Mastodon population growth rate was assumed to be 1% yr-1 using a logistic growth model. We assumed that mastodons were able to browse trees up to 4 m height, with a preference for trees between 0-2 m (Guy, 1976) and the occasional uprooting of trees, similar to modern elephants (Scheiter and Higgins, 2012; Shannon et al., 2008). The diet was assumed to consist of 20% Norway spruce (Picea abies (L.) Karst.).
 
-```
+```javascript
 var mastodon = new BiteAgent({
 	name: "Mastodon", description: "Extinct browser", 
 	cellSize: 1000,  //maximum reasonable cellsize regarding vegetation aggregation, mammal migration under development
