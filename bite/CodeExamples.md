@@ -361,7 +361,7 @@ function randomSpread(n, gr) {
 
 Asian long-horned beetle (ALB) is an insect species native to China and Korea, attacking the stems of multiple deciduous tree species. Its larvae consume the wood, which can eventually lead to tree mortality (Haack et al., 1997; Hérard et al., 2006). Global trade has resulted in the introduction of ALB to many areas outside its native range (Eyre and Haack, 2017), as the species effectively disperses in wood packaging material. In the USA, it has been estimated that ALB could potentially destroy ~30% of all urban trees, and cause a significant disturbance to forest ecosystems (Nowak et al., 2001).There are several different estimates of the potential impact of ALB varying from ~3-30% (Faccoli and Gatto, 2016; Nowak et al., 2001), often based on the large-scale mortality of poplar plantations in the native habitat of the beetle in China (see Hu et al., 2009 and the references therein). However, quick eradication measures at infested sites have prevented accumulation of data to quantify real impacts caused by ALB. Dodds and Orwig (2011) studied the only large-scale infestation outside the native range in non-urban environment in Massachusetts, USA and found that tree mortality and growth losses were extremely rare even after more than 5 years after the infestations. ALB is a moderate disperser, and we here used a general leptokurtic dispersal kernel to simulate its spread (Shatz et al., 2016). We assumed that to colonize a cell, host with dbh>7.5 cm was needed to be present (Dodds and Orwig, 2011). Even though the life cycle of the agent is generally well-known (Haack et al., 2009), we didn’t find enough reliable quantitative information to parameterize the detailed agent population dynamics module of BITE. Furthermore, mortality rates remain uncertain; we here assumed that all trees would die 4 years after an infestation (Nowak et al., 2001)the annual mortality rates would be rather low (Dodds and Orwig, 2011) and we used a linearly increasing mortality rate from 0 to 2% over 10 year period to simulate the slow mortality process caused by the beetle. .
 
-Asian long-horned beetle is using 4 of the core modules similar to ash dieback: 1) Introduction, 2) Dispersal, 3) Colonization, and 4) Impact. However, the information for asian long-horned beetle was more limited compared to ash dieback and many of the parameters were estimated based on more qualitative analysis from few publications. The dispersal kernels are often the most well-known parameters for BITE and that was the case for ALB as well, where several papers have been published estimating the agent disperal based on different data sources. The impact of ALB infestation was the least known parameter as in most cases when ALB are introduced the rapid eradication measures take place leading to increased mortality of trees, not due to agent itself but eradication harvests. Thus, ALB serves here as an example how management interventions could be applied in the BITE/iLand framework. When the `BiteImpact`
+Asian long-horned beetle is using 4 of the core modules similar to ash dieback: 1) Introduction, 2) Dispersal, 3) Colonization, and 4) Impact. However, the information for asian long-horned beetle was more limited compared to ash dieback and many of the parameters were estimated based on more qualitative analysis from few publications. The dispersal kernels are often the most well-known parameters for BITE and that was the case for ALB as well, where several papers have been published estimating the agent disperal based on different data sources. The impact of ALB infestation was the least known parameter as in most cases when ALB are introduced the rapid eradication measures take place leading to increased mortality of trees, not due to agent itself but eradication harvests. Thus, ALB serves here as an example how management interventions could be applied in the BITE/iLand framework. When the `BiteImpact` is enabled, the first 10 years, ALB is assumed to kill annually 0.2% of the trees with >7.5cm diameter at breast height in the infested cells starting from the smallest trees. In addition, we assume here that it takes on average 3 years to detect an infestation and to start eradication. This is done here with the aid of iLands agent based management component allowing an intervention in the management program.
 
 ```javascript
 var BarkBeetle = new BiteAgent({
@@ -395,14 +395,14 @@ var BarkBeetle = new BiteAgent({
 		treeFilter: 'species=acps AND dbh>=7.5' // the cell must have Sycamore (Acer pseudoplatanus) as host and tree diameter needs to be over 7.5 cm (Dodds and Orwig 2011)
 	   }),
 
-
-		impact: new BiteImpact({ 
+	
+	impact: new BiteImpact({ 
 		impact: [			//impact arrays
-		   {target: 'tree', fractionOfTrees: 'min(yearsLiving*0.002,0.02)'} // remove linearly 0.2% of trees in the cell every year until 10 years after which the mortality is constant
+		   {treeFilter: 'dbh>=7.5',target: 'tree', fractionOfTrees: 'min(yearsLiving*0.002,0.02)', order='-dbh'} // remove linearly 0.2% of trees in the cell every year until 10 years after which the mortality is constant
 		   ],
-		   onImpact: function(cell) { 			//launch eradication of an agent by harvesting the stand after x years after colonization (see below for more details)
+		   onImpact: function(cell) { 
 		    console.log('Impact on stand: ' + cell.value('standId'));
-			ABELink(cell.value('standId'), cell.value('yearsLiving') ); // accumulate impact 			
+			ABELink(cell.value('standId'), cell.value('yearsLiving'), 3 ); // accumulate impact 			
 		}
 	}),
 	
@@ -480,7 +480,9 @@ var a_disturbance_response = { type: 'general',
 ``` 
 ## Mastodon
 
-Mastodons were large mammals distantly related to elephants, inhabiting the forests of North America and Eurasia until their extinction ~10–11,000 years ago. Compared to mammoths (Mammuthus sp.), which were grazers, mastodons were forest-dwelling browsers with Picea spp. forming a significant part of their diet (Birks et al., 2018; Teale and Miller, 2012). Their estimated body mass was ~8000 kg, mastodons were thus slightly heavier than modern elephants although their shoulder height was roughly comparable (Larramendi, 2015). We assumed mastodons to inhabit the whole test landscape with an initial density of 1.5 individuals per 100 ha, corresponding to the estimated densities of Pleistocene megaherbivores (120 kg ha-1) (Bakker et al., 2016). Mastodon population growth rate was assumed to be 1% yr-1 using a logistic growth model. We assumed that mastodons were able to browse trees up to 4 m height, with a preference for trees between 0-2 m (Guy, 1976) and the occasional uprooting of trees, similar to modern elephants (Scheiter and Higgins, 2012; Shannon et al., 2008). The diet was assumed to consist of 20% Norway spruce (Picea abies (L.) Karst.). The following code and examples on alternative impacts provides tips to cause impact on different tree size classes.
+Mastodons were large mammals distantly related to elephants, inhabiting the forests of North America and Eurasia until their extinction ~10–11,000 years ago. Compared to mammoths (Mammuthus sp.), which were grazers, mastodons were forest-dwelling browsers with Picea spp. forming a significant part of their diet (Birks et al., 2018; Teale and Miller, 2012). Their estimated body mass was ~8000 kg, mastodons were thus slightly heavier than modern elephants although their shoulder height was roughly comparable (Larramendi, 2015). We assumed mastodons to inhabit the whole test landscape with an initial density of 1.5 individuals per 100 ha, corresponding to the estimated densities of Pleistocene megaherbivores (120 kg ha-1) (Bakker et al., 2016). Mastodon population growth rate was assumed to be 1% yr-1 using a logistic growth model. We assumed that mastodons were able to browse trees up to 4 m height, with a preference for trees between 0-2 m (Guy, 1976) and the occasional uprooting of trees, similar to modern elephants (Scheiter and Higgins, 2012; Shannon et al., 2008). The diet was assumed to consist of 20% Norway spruce (Picea abies (L.) Karst.). 
+
+Mastodon uses four different core modules of BITE: 1) Introduction, 2) Colonization, 3) Population dynamics and 4) Impact. Mastodons, together with the roe deer, are examples of an agent without a specific dispersal kernel and introduction to the entire landscape using `BiteDistribution` item. See above the roe deer example for details on that. The mastodon is here as an example of varying the agent impacts on vegetation depending on tree size. The following code and examples on alternative impacts provides tips to cause impact on different tree size classes.
 
 ```javascript
 var mastodon = new BiteAgent({
@@ -549,15 +551,15 @@ Alternative Impact 1. Here, the impact on fraction of trees is varying with the 
 		]
 	}),
 ```
-Alternative Impact 2. Here, the fractions have been flipped over compared to the example 1. 
+Alternative Impact 2. Here, the fractions are the same, but instead of diameter, we use the tree heigth as a classifying variable. 
 ```javascript
 	impact: new BiteImpact({ 
 		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
 		impact: [						//impact arrays 
 //		   {target: 'browsing', fractionOfTrees: 'agentImpact/hostBiomass', order:'height'}, // browsing effect for sapligns, the fraction affected is calculated as a fraction of consumed host biomass from total biomass
-		   {treeFilter: 'dbh<=5', target: 'tree', fractionOfTrees: '0.075'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
-		   {treeFilter: 'dbh>5 and dbh<=10', target: 'tree', fractionOfTrees: '0.05'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
-		   {treeFilter: 'dbh>10 and dbh<=15', target: 'tree', fractionOfTrees: '0.025'} //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'height<=8', target: 'tree', fractionOfTrees: '0.025'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'height>8 and height<=12', target: 'tree', fractionOfTrees: '0.05'}, //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
+		   {treeFilter: 'height>12 and height<=15', target: 'tree', fractionOfTrees: '0.075'} //we assume that the mastodons were uprooting small diameter trees for forage in a similar way as their modern counterparts, elephants, in Africa do (Shannon et al 2008 see Scheiter & Higgins 2012)
 
 		]
 	}),
