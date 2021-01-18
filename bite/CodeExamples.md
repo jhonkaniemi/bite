@@ -11,7 +11,7 @@ Gypsy moth | cyclic outbreaks
 Roe deer | introduction everywhere in the landscape without dispersal kernel
 Ash dieback | host tree resistance
 Asian long-horned beetle | management interventions
-Mastodon | ???
+Mastodon | creating impact on different tree size classes
 
 ## Heterobasidion root rot
 
@@ -480,7 +480,7 @@ var a_disturbance_response = { type: 'general',
 ``` 
 ## Mastodon
 
-Mastodons were large mammals distantly related to elephants, inhabiting the forests of North America and Eurasia until their extinction ~10–11,000 years ago. Compared to mammoths (Mammuthus sp.), which were grazers, mastodons were forest-dwelling browsers with Picea spp. forming a significant part of their diet (Birks et al., 2018; Teale and Miller, 2012). Their estimated body mass was ~8000 kg, mastodons were thus slightly heavier than modern elephants although their shoulder height was roughly comparable (Larramendi, 2015). We assumed mastodons to inhabit the whole test landscape with an initial density of 1.5 individuals per 100 ha, corresponding to the estimated densities of Pleistocene megaherbivores (120 kg ha-1) (Bakker et al., 2016). Mastodon population growth rate was assumed to be 1% yr-1 using a logistic growth model. We assumed that mastodons were able to browse trees up to 4 m height, with a preference for trees between 0-2 m (Guy, 1976) and the occasional uprooting of trees, similar to modern elephants (Scheiter and Higgins, 2012; Shannon et al., 2008). The diet was assumed to consist of 20% Norway spruce (Picea abies (L.) Karst.).
+Mastodons were large mammals distantly related to elephants, inhabiting the forests of North America and Eurasia until their extinction ~10–11,000 years ago. Compared to mammoths (Mammuthus sp.), which were grazers, mastodons were forest-dwelling browsers with Picea spp. forming a significant part of their diet (Birks et al., 2018; Teale and Miller, 2012). Their estimated body mass was ~8000 kg, mastodons were thus slightly heavier than modern elephants although their shoulder height was roughly comparable (Larramendi, 2015). We assumed mastodons to inhabit the whole test landscape with an initial density of 1.5 individuals per 100 ha, corresponding to the estimated densities of Pleistocene megaherbivores (120 kg ha-1) (Bakker et al., 2016). Mastodon population growth rate was assumed to be 1% yr-1 using a logistic growth model. We assumed that mastodons were able to browse trees up to 4 m height, with a preference for trees between 0-2 m (Guy, 1976) and the occasional uprooting of trees, similar to modern elephants (Scheiter and Higgins, 2012; Shannon et al., 2008). The diet was assumed to consist of 20% Norway spruce (Picea abies (L.) Karst.). The following code and examples on alternative impacts provides tips to cause impact on different tree size classes.
 
 ```javascript
 var mastodon = new BiteAgent({
@@ -537,7 +537,7 @@ growth: new BiteBiomass({
 });
 ```
 
-Alternative Impact 1. Here, the 
+Alternative Impact 1. Here, the impact on fraction of trees is varying with the tree diameter. The smallest trees are affected the least (2.5% affected a year) while 10-15cm trees are killed the most, 7.5%. This is an easy way to incorporate explicit effects on forest structure.
 ```javascript
 	impact: new BiteImpact({ 
 		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
@@ -549,7 +549,7 @@ Alternative Impact 1. Here, the
 		]
 	}),
 ```
-
+Alternative Impact 2. Here, the fractions have been flipped over compared to the example 1. 
 ```javascript
 	impact: new BiteImpact({ 
 		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
@@ -563,7 +563,7 @@ Alternative Impact 1. Here, the
 	}),
 	
 ```
-
+Alternative Impact 3. And here, the diameter classes and fractions have been changed. Notice, that here trees with 8-12 cm diameter do not get killed at all!
 ```javascript
 	impact: new BiteImpact({ 
 		impactFilter: 'agentImpact>0',   //impact occurs once the agent has consumed the first biomass units of the host
